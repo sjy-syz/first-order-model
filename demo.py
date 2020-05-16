@@ -60,9 +60,9 @@ def make_animation(source_image_true,source_image_fake, driving_video, generator
         source_true = torch.tensor(source_image_true[np.newaxis].astype(np.float32)).permute(0, 3, 1, 2)
         source_fake = torch.tensor(source_image_fake[np.newaxis].astype(np.float32)).permute(0, 3, 1, 2)
         if not cpu:
-            source = source.cuda()
+            source_true = source_true.cuda()
         driving = torch.tensor(np.array(driving_video)[np.newaxis].astype(np.float32)).permute(0, 4, 1, 2, 3)
-        kp_source = kp_detector(source)
+        kp_source = kp_detector(source_true)
         kp_driving_initial = kp_detector(driving[:, :, 0])
 
         for frame_idx in tqdm(range(driving.shape[2])):
