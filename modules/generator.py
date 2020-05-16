@@ -67,7 +67,7 @@ class OcclusionAwareGenerator(nn.Module):
         # Transforming feature representation according to deformation and occlusion
         output_dict = {}
         if self.dense_motion_network is not None:
-            print("has dense motion map")
+            #print("has dense motion map")
             dense_motion = self.dense_motion_network(source_image=source_image_true, kp_driving=kp_driving,
                                                      kp_source=kp_source)
             output_dict['mask'] = dense_motion['mask']
