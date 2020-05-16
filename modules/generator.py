@@ -56,16 +56,18 @@ class OcclusionAwareGenerator(nn.Module):
             deformation = deformation.permute(0, 2, 3, 1)
         return F.grid_sample(inp, deformation)
 
-    def forward(self, source_image, kp_driving, kp_source):
+    def forward(self, source_image_true, source_image_fake, kp_driving, kp_source):
         # Encoding (downsampling) part
-        out = self.first(source_image)
+        out = self.first(source_image_fake)
+        
         for i in range(len(self.down_blocks)):
             out = self.down_blocks[i](out)
+            
 
         # Transforming feature representation according to deformation and occlusion
         output_dict = {}
         if self.dense_motion_network is not None:
-            dense_motion = self.dense_motion_network(source_image=source_image, kp_driving=kp_driving,
+            dense_motion = self.dense_motion_network(source_image=source_image_true, kp_driving=kp_driving,
                                                      kp_source=kp_source)
             output_dict['mask'] = dense_motion['mask']
             output_dict['sparse_deformed'] = dense_motion['sparse_deformed']
@@ -77,13 +79,14 @@ class OcclusionAwareGenerator(nn.Module):
                 occlusion_map = None
             deformation = dense_motion['deformation']
             out = self.deform_input(out, deformation)
+            
 
             if occlusion_map is not None:
                 if out.shape[2] != occlusion_map.shape[2] or out.shape[3] != occlusion_map.shape[3]:
                     occlusion_map = F.interpolate(occlusion_map, size=out.shape[2:], mode='bilinear')
                 out = out * occlusion_map
 
-            output_dict["deformed"] = self.deform_input(source_image, deformation)
+            output_dict["deformed"] = self.deform_input(source_image_true, deformation)
 
         # Decoding part
         out = self.bottleneck(out)
