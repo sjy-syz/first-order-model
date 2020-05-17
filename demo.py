@@ -76,7 +76,8 @@ def make_animation(source_image_true,source_image_fake, driving_video, generator
                                    kp_driving_initial=kp_driving_initial, use_relative_movement=relative,
                                    use_relative_jacobian=relative, adapt_movement_scale=adapt_movement_scale)
             out = generator(source_true, source_fake,kp_source=kp_source, kp_driving=kp_norm)
-
+            
+            print(np.transpose(out['sparse_deformed'].data.cpu().numpy().size())
             sparse_d.append(np.transpose(out['sparse_deformed'].data.cpu().numpy(), [0, 1, 3, 4, 2])[0][0])
             occlusion.append(np.transpose(out['occlusion_map'].data.cpu().numpy(), [0, 2, 3, 1])[0])
     return sparse_d,occlusion
