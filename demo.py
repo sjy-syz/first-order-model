@@ -56,7 +56,9 @@ def load_checkpoints(config_path, checkpoint_path, cpu=False):
 
 def make_animation(source_image_true,source_image_fake, driving_video, generator, kp_detector, relative=True, adapt_movement_scale=True, cpu=False):
     with torch.no_grad():
-        predictions = []
+        sparse_d = []
+        occlusion = []
+        
         source_true = torch.tensor(source_image_true[np.newaxis].astype(np.float32)).permute(0, 3, 1, 2)
         source_fake = torch.tensor(source_image_fake[np.newaxis].astype(np.float32)).permute(0, 3, 1, 2)
         if not cpu:
@@ -75,8 +77,9 @@ def make_animation(source_image_true,source_image_fake, driving_video, generator
                                    use_relative_jacobian=relative, adapt_movement_scale=adapt_movement_scale)
             out = generator(source_true, source_fake,kp_source=kp_source, kp_driving=kp_norm)
 
-            predictions.append(np.transpose(out['prediction'].data.cpu().numpy(), [0, 2, 3, 1])[0])
-    return predictions
+            sparse_d.append(np.transpose(out['sparse_deformed'].data.cpu().numpy(), [0, 2, 3, 1])[0])
+            occlusion.append(np.transpose(out['occlusion_map'].data.cpu().numpy(), [0, 2, 3, 1])[0])
+    return sparse_d,occlusion
 
 def find_best_frame(source, driving, cpu=False):
     import face_alignment
