@@ -42,7 +42,7 @@ class DenseMotionNetwork(nn.Module):
         zeros = torch.zeros(heatmap.shape[0], 1, spatial_size[0], spatial_size[1]).type(heatmap.type())
         heatmap = torch.cat([zeros, heatmap], dim=1)
         heatmap = heatmap.unsqueeze(2)
-        print(type(heatmap))
+        #print(type(heatmap))
         return heatmap
 
     def create_sparse_motions(self, source_image, kp_driving, kp_source):
@@ -65,7 +65,7 @@ class DenseMotionNetwork(nn.Module):
         #adding background feature
         identity_grid = identity_grid.repeat(bs, 1, 1, 1, 1)
         sparse_motions = torch.cat([identity_grid, driving_to_source], dim=1)
-        print(type(sparse_motions))
+        #print(type(sparse_motions))
         return sparse_motions
 
     def create_deformed_source_image(self, source_image, sparse_motions):
@@ -78,7 +78,7 @@ class DenseMotionNetwork(nn.Module):
         sparse_motions = sparse_motions.view((bs * (self.num_kp + 1), h, w, -1))
         sparse_deformed = F.grid_sample(source_repeat, sparse_motions)
         sparse_deformed = sparse_deformed.view((bs, self.num_kp + 1, -1, h, w))
-        print(type(sparse_deformed))
+        #print(type(sparse_deformed))
         return sparse_deformed
 
     def forward(self, source_image, kp_driving, kp_source):
